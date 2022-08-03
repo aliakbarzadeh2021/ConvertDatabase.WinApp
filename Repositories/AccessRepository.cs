@@ -1,13 +1,15 @@
-﻿namespace ConvertDatabase.WinApp.Repositories
+﻿using System.Collections.Generic;
+
+namespace ConvertDatabase.WinApp.Repositories
 {
-    public class AccessRepository : IRepository
+    public class AccessRepository<T> : IRepository<T>
     {
         public void Export()
         {
             throw new System.NotImplementedException();
         }
 
-        public object GetAll()
+        public List<T> GetAll()
         {
             throw new System.NotImplementedException();
         }

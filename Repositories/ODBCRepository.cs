@@ -1,13 +1,15 @@
-﻿namespace ConvertDatabase.WinApp.Repositories
+﻿using System.Collections.Generic;
+
+namespace ConvertDatabase.WinApp.Repositories
 {
-    public class ODBCRepository : IRepository
+    public class ODBCRepository<T> : IRepository<T>
     {
         public void Export()
         {
             throw new System.NotImplementedException();
         }
 
-        public object GetAll()
+        public List<T> GetAll()
         {
             throw new System.NotImplementedException();
         }

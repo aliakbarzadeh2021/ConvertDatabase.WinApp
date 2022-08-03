@@ -17,7 +17,7 @@ using System.Data.SqlClient;
 
 namespace ConvertDatabase.WinApp.Repositories
 {
-    public class FileRepository : IRepository
+    public class FileRepository<T> : IRepository<T>
     {
         private string FilePath = "";
         public JournalDataClass sourceData ;
@@ -391,7 +391,7 @@ namespace ConvertDatabase.WinApp.Repositories
             throw new NotImplementedException();
         }
 
-        public void Export()
+        public List<T> Export()
         {
             throw new NotImplementedException();
         }

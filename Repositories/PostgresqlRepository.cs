@@ -1,9 +1,10 @@
 ﻿using ConvertDatabase.WinApp.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace ConvertDatabase.WinApp.Repositories
 {
-    public class PostgresqlRepository : IRepository
+    public class PostgresqlRepository<T> : IRepository<T>
     {
         PostgresqlContext db = new PostgresqlContext();
         public void Export()
@@ -12,7 +13,7 @@ namespace ConvertDatabase.WinApp.Repositories
             throw new System.NotImplementedException();
         }
 
-        public object GetAll()
+        public List<T> GetAll()
         {
             throw new System.NotImplementedException();
         }

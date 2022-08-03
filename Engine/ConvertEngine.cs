@@ -83,15 +83,15 @@ namespace ConvertDatabase.WinApp.Engine
                 }
                 else if (ConvertDto.SoftwareType == SoftwareTypeEnum.Afra)
                 {
-                    return new ConvertSaderat();
+                    return new ConvertJournal();
                 }
                 else if (ConvertDto.SoftwareType == SoftwareTypeEnum.Shahd)
                 {
-                    return new ConvertKarime();
+                    return new ConvertJournal();
                 }
                 else if (ConvertDto.SoftwareType == SoftwareTypeEnum.Others)
                 {
-                    return new ConvertFarvardin();
+                    return new ConvertJournal();
                 }
             }
             else if (ConvertDto.ConvertType == ConvertTypeEnum.Promissory)
@@ -105,7 +105,7 @@ namespace ConvertDatabase.WinApp.Engine
 
 
 
-            return new ConvertBargh(ConvertDto);
+            return new ConvertJournal();
         }
 
         public void SetImportSourcePath(JournalFilesPath filesPath)

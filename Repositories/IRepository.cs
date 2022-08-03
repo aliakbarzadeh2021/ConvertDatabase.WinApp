@@ -4,9 +4,9 @@ using System.Text;
 
 namespace ConvertDatabase.WinApp.Repositories
 {
-    public interface IRepository
+    public interface IRepository<T>
     {
-        object GetAll();
+        List<T> GetAll();
         void Export();
     }
 }

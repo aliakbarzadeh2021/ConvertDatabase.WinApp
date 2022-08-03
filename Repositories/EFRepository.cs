@@ -1,16 +1,17 @@
 ﻿using ConvertDatabase.WinApp.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace ConvertDatabase.WinApp.Repositories
 {
-    public class EFRepository : IRepository
+    public class EFRepository<T> : IRepository<T>
     {
         public void Export()
         {
             throw new System.NotImplementedException();
         }
 
-        public object GetAll()
+        public List<T> GetAll()
         {
             throw new System.NotImplementedException();
         }

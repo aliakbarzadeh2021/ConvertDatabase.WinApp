@@ -22,50 +22,49 @@ namespace ConvertDatabase.WinApp.ConvertClass
     {
         public ConvertSepidar(IRepository importRepository, IRepository outputRepository, JournalDataClass sourceData, JournalDataClass targetData)
         {
+            ConvertDto.SourceData.MappingColumns = sourceData.MappingColumns;
+            ConvertDto.SourceData = sourceData;
+            ConvertDto.TargetData = targetData;
             ImportRepository = importRepository;
             OutputRepository = outputRepository;
-            MappingColumns = sourceData.MappingColumns;
-            SourceData = sourceData;
-            TargetData = targetData;
         }
 
         public ConvertSepidar(ConvertDto convertDto)
         {
-            MappingColumns = convertDto.SourceData.MappingColumns;
-            SourceData = convertDto.SourceData;
-            TargetData = convertDto.TargetData;
+            ConvertDto.SourceData.MappingColumns = convertDto.SourceData.MappingColumns;
+            ConvertDto.SourceData = convertDto.SourceData;
+            ConvertDto.TargetData = convertDto.TargetData;
             ConvertDto = convertDto;
-            ImportRepository = GetImportRepository(convertDto);
-            OutputRepository = GetOutputRepository(convertDto);
-            
+            //ImportRepository = GetImportRepository(convertDto);
+            //OutputRepository = GetOutputRepository(convertDto);
         }
 
-        private IRepository GetOutputRepository(ConvertDto convertDto)
+        private IRepository<T> GetInputRepository<T>(ConvertDto convertDto)
         {
             if (convertDto.InputTypeEnum == InputTypeEnum.Excel)
             {
-                return new FileRepository();
+                return new FileRepository<T>();
             }
 
-            return new FileRepository();
+            return new FileRepository<T>();
         }
 
-        private IRepository GetImportRepository(ConvertDto convertDto)
+        private IRepository<T> GetOutputRepository<T>(ConvertDto convertDto)
         {
             if (convertDto.OutputTypeEnum == OutputTypeEnum.Excel)
             {
-                return new FileRepository();
+                return new FileRepository<T>();
             }
 
-            return new FileRepository();
+            return new FileRepository<T>();
         }
 
         public ConvertDto ConvertDto { get; }
-        public IRepository ImportRepository { get; }
-        public IRepository OutputRepository { get; }
-        public List<MapColumn> MappingColumns { get; }
-        public JournalDataClass SourceData { get; }
-        public JournalDataClass TargetData { get; }
+        //public IRepository<T> ImportRepository { get; }
+        //public IRepository<T> OutputRepository { get; }
+        //public List<MapColumn> MappingColumns { get; }
+        //public JournalDataClass SourceData { get; }
+        //public JournalDataClass TargetData { get; }
 
 
         public DataTable GetDataTable(JournalDataClass data)
@@ -73,8 +72,11 @@ namespace ConvertDatabase.WinApp.ConvertClass
             return new DataTable();
         }
 
-        public DataTable MappColumn(DataTable source, DataTable target, List<MapColumn> maps)
+        public DataTable MappColumn()
         {
+            var source = GetDataTable(ConvertDto.SourceData);
+            var target = GetDataTable(ConvertDto.TargetData);
+            var maps = ConvertDto.SourceData.MappingColumns;
             var counter = 0;
 
             foreach (DataRow item in source.Rows)
@@ -125,11 +127,13 @@ namespace ConvertDatabase.WinApp.ConvertClass
 
         public void CreateAccountCategory()
         {
-            var sourceData = ImportRepository.GetAll();
-            var targetTable = MappColumn(GetDataTable(SourceData), GetDataTable(TargetData), MappingColumns);
+            var inputRepository = GetInputRepository<AccountCategories>(ConvertDto);
+            var outputRepository = GetOutputRepository<AccountCategories>(ConvertDto);
+            var sourceData = inputRepository.GetAll();
+            var targetTable = MappColumn();
             var data = GetList<AccountCategories>(targetTable);
             var ConvertedData = MappData(data);
-            OutputRepository.Export();
+            outputRepository.Export();
         }
 
         public void CreateDetailAccounts()
