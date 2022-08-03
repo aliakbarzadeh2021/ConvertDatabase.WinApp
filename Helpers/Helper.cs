@@ -1,4 +1,5 @@
-﻿using ExcelDataReader;
+﻿using ConvertDatabase.WinApp.Models;
+using ExcelDataReader;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -8,6 +9,7 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace ConvertDatabase.WinApp.Helpers
@@ -48,7 +50,55 @@ namespace ConvertDatabase.WinApp.Helpers
             return string.Format($"{pc.GetYear(date)}/{pc.GetMonth(date)}/{pc.GetDayOfMonth(date)}");
         }
 
-        
+
+        public static DataTable MappColumn(DataTable source, DataTable target, List<MapColumn> maps)
+        {
+            //var source = GetDataTable(ConvertDto.SourceData);
+            //var target = GetDataTable(ConvertDto.TargetData);
+            //var maps = ConvertDto.SourceData.MappingColumns;
+            var counter = 0;
+
+            foreach (DataRow item in source.Rows)
+            {
+                foreach (MapColumn map in maps)
+                {
+                    target.Rows[counter][map.TargetValue] = item[map.SourceValue];
+                }
+                counter++;
+            }
+
+            return target;
+        }
+
+        public static List<T> GetList<T>(DataTable dt)
+        {
+            List<T> data = new List<T>();
+            foreach (DataRow row in dt.Rows)
+            {
+                T item = GetItem<T>(row);
+                data.Add(item);
+            }
+            return data;
+        }
+
+        private static T GetItem<T>(DataRow dr)
+        {
+            Type temp = typeof(T);
+            T obj = Activator.CreateInstance<T>();
+
+            foreach (DataColumn column in dr.Table.Columns)
+            {
+                foreach (PropertyInfo pro in temp.GetProperties())
+                {
+                    if (pro.Name == column.ColumnName)
+                        pro.SetValue(obj, dr[column.ColumnName], null);
+                    else
+                        continue;
+                }
+            }
+            return obj;
+        }
+
 
     }
 }

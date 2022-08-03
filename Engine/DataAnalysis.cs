@@ -21,7 +21,7 @@ namespace ConvertDatabase.WinApp.Engine
 
     public class DataAnalysis : IDataAnalysis
     {
-        FileRepository fileRepository = new FileRepository();
+        FileRepository<SubsidiaryLedgerAccount> fileRepository = new FileRepository<SubsidiaryLedgerAccount>();
         public DataAnalysisResult Run()
         {
             return new DataAnalysisResult() 

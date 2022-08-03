@@ -35,6 +35,23 @@ namespace ConvertDatabase.WinApp.Repositories
             destinationData = new JournalDataClass();
         }
 
+        public List<T> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Export(List<T> input)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public DataTable GetData()
+        {
+            throw new System.NotImplementedException();
+        }
+
+
+
         public DataTable GetData(string query)
         {
             var connectionString = ConfigurationManager.ConnectionStrings["SqlConnectionString"].ConnectionString;
@@ -54,7 +71,6 @@ namespace ConvertDatabase.WinApp.Repositories
                 }
             }
         }
-
 
         public string GetFilePath(string path)
         {
@@ -386,15 +402,8 @@ namespace ConvertDatabase.WinApp.Repositories
             return JsonConvert.SerializeObject(results, Formatting.Indented);
         }
 
-        public object GetAll()
-        {
-            throw new NotImplementedException();
-        }
+        
 
-        public List<T> Export()
-        {
-            throw new NotImplementedException();
-        }
 
 
         //public static void ListToExcel(List<string> list)

@@ -1,8 +1,10 @@
-﻿using ConvertDatabase.WinApp.Models;
+﻿using ConvertDatabase.WinApp.Helpers;
+using ConvertDatabase.WinApp.Models;
 using ConvertDatabase.WinApp.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Reflection;
 
 namespace ConvertDatabase.WinApp.ConvertClass
@@ -20,15 +22,6 @@ namespace ConvertDatabase.WinApp.ConvertClass
     //
     public class ConvertSepidar : ISepidar
     {
-        public ConvertSepidar(IRepository importRepository, IRepository outputRepository, JournalDataClass sourceData, JournalDataClass targetData)
-        {
-            ConvertDto.SourceData.MappingColumns = sourceData.MappingColumns;
-            ConvertDto.SourceData = sourceData;
-            ConvertDto.TargetData = targetData;
-            ImportRepository = importRepository;
-            OutputRepository = outputRepository;
-        }
-
         public ConvertSepidar(ConvertDto convertDto)
         {
             ConvertDto.SourceData.MappingColumns = convertDto.SourceData.MappingColumns;
@@ -67,103 +60,137 @@ namespace ConvertDatabase.WinApp.ConvertClass
         //public JournalDataClass TargetData { get; }
 
 
-        public DataTable GetDataTable(JournalDataClass data)
-        {
-            return new DataTable();
-        }
+        //public DataTable GetDataTable(JournalDataClass data)
+        //{
+        //    return new DataTable();
+        //}
 
-        public DataTable MappColumn()
+        private List<JournalItem> MappData(List<JournalItem> data)
         {
-            var source = GetDataTable(ConvertDto.SourceData);
-            var target = GetDataTable(ConvertDto.TargetData);
-            var maps = ConvertDto.SourceData.MappingColumns;
-            var counter = 0;
-
-            foreach (DataRow item in source.Rows)
+            var localData = data;
+            foreach (var item in localData)
             {
-                foreach (MapColumn map in maps)
-                {
-                    target.Rows[counter][map.TargetValue] = item[map.SourceValue];
-                }
-                counter++;
+                var subsidaryCode = GetSubsidiaryCode();
+                var subsidary = GetSubsidiaryLedgerAccount(subsidaryCode);
+                item.subsidiaryLedgerAccountId = subsidary.id;
+                item.generalLedgerAccountId = subsidary.generalLedgerAccountId;
+                item.detailAccountId = GetDetailAccount("").id.ToString();
             }
-
-            return target;
+            return localData;
         }
 
-        private static List<T> GetList<T>(DataTable dt)
-        {
-            List<T> data = new List<T>();
-            foreach (DataRow row in dt.Rows)
-            {
-                T item = GetItem<T>(row);
-                data.Add(item);
-            }
-            return data;
-        }
-
-        private static T GetItem<T>(DataRow dr)
-        {
-            Type temp = typeof(T);
-            T obj = Activator.CreateInstance<T>();
-
-            foreach (DataColumn column in dr.Table.Columns)
-            {
-                foreach (PropertyInfo pro in temp.GetProperties())
-                {
-                    if (pro.Name == column.ColumnName)
-                        pro.SetValue(obj, dr[column.ColumnName], null);
-                    else
-                        continue;
-                }
-            }
-            return obj;
-        }
-
-        private List<T> MappData<T>(List<T> data)
+        private string GetSubsidiaryCode()
         {
             throw new NotImplementedException();
+        }
+
+        private SubsidiaryLedgerAccount GetSubsidiaryLedgerAccount(string code)
+        {
+            var equivalent = ConvertDto.TargetData.EquivalentSubsidiaryList.FindLast(i => i.OldCode == code);
+            if (equivalent != null)
+            {
+                var account = ConvertDto.TargetData.SubsidiaryLedgerAccountList.FindLast(i => int.Parse(i.code) == int.Parse(equivalent.NewCode));
+                if (account != null)
+                {
+                    return account;
+                }
+                // TODO : Create Account
+
+            }
+            return ConvertDto.TargetData.SubsidiaryLedgerAccountList.FindLast(a => a.AccountId == code);
+        }
+
+        private DetailAccount GetDetailAccount(string code)
+        {
+            var equivalent = ConvertDto.TargetData.EquivalentDetailList.FindLast(i => i.OldCode == code);
+            if (equivalent != null)
+            {
+                var account = ConvertDto.TargetData.DetailAccountList.FindLast(i => int.Parse(i.code) == int.Parse(equivalent.NewCode));
+                if (account != null)
+                {
+                    return account;
+                }
+                // TODO : Create Account
+
+            }
+            return ConvertDto.TargetData.DetailAccountList.FindLast(a => a.AccountId == code);
         }
 
         public void CreateAccountCategory()
         {
             var inputRepository = GetInputRepository<AccountCategories>(ConvertDto);
             var outputRepository = GetOutputRepository<AccountCategories>(ConvertDto);
-            var sourceData = inputRepository.GetAll();
-            var targetTable = MappColumn();
-            var data = GetList<AccountCategories>(targetTable);
-            var ConvertedData = MappData(data);
-            outputRepository.Export();
+            var sourceData = inputRepository.GetData();
+            var targetData = outputRepository.GetData();
+            var targetTable = Helper.MappColumn(sourceData, targetData, ConvertDto.SourceData.MappingColumns);
+            var dataList = Helper.GetList<AccountCategories>(targetTable);
+            outputRepository.Export(dataList);
         }
 
         public void CreateDetailAccounts()
         {
-            throw new NotImplementedException();
+            var inputRepository = GetInputRepository<AccountCategories>(ConvertDto);
+            var outputRepository = GetOutputRepository<AccountCategories>(ConvertDto);
+            var sourceData = inputRepository.GetData();
+            var targetData = outputRepository.GetData();
+            var targetTable = Helper.MappColumn(sourceData, targetData, ConvertDto.SourceData.MappingColumns);
+            var dataList = Helper.GetList<AccountCategories>(targetTable);
+            outputRepository.Export(dataList);
         }
 
         public void CreateFiscalPeriod()
         {
-            throw new NotImplementedException();
+            var inputRepository = GetInputRepository<AccountCategories>(ConvertDto);
+            var outputRepository = GetOutputRepository<AccountCategories>(ConvertDto);
+            var sourceData = inputRepository.GetData();
+            var targetData = outputRepository.GetData();
+            var targetTable = Helper.MappColumn(sourceData, targetData, ConvertDto.SourceData.MappingColumns);
+            var dataList = Helper.GetList<AccountCategories>(targetTable);
+            outputRepository.Export(dataList);
         }
 
         public void CreateGeneralLedgerAccount()
         {
-            throw new NotImplementedException();
+            var inputRepository = GetInputRepository<AccountCategories>(ConvertDto);
+            var outputRepository = GetOutputRepository<AccountCategories>(ConvertDto);
+            var sourceData = inputRepository.GetData();
+            var targetData = outputRepository.GetData();
+            var targetTable = Helper.MappColumn(sourceData, targetData, ConvertDto.SourceData.MappingColumns);
+            var dataList = Helper.GetList<AccountCategories>(targetTable);
+            outputRepository.Export(dataList);
         }
 
         public void CreateJournal()
         {
-            throw new NotImplementedException();
+            var inputRepository = GetInputRepository<JournalItem>(ConvertDto);
+            var outputRepository = GetOutputRepository<JournalItem>(ConvertDto);
+            var sourceData = inputRepository.GetData();
+            var targetData = outputRepository.GetData();
+            var targetTable = Helper.MappColumn(sourceData, targetData, ConvertDto.SourceData.MappingColumns);
+            var dataList = Helper.GetList<JournalItem>(targetTable);
+            var ConvertedData = MappData(dataList);
+            outputRepository.Export(ConvertedData);
         }
 
         public void CreateSubsidiaryLedgerAccount()
         {
-            throw new NotImplementedException();
+            var inputRepository = GetInputRepository<AccountCategories>(ConvertDto);
+            var outputRepository = GetOutputRepository<AccountCategories>(ConvertDto);
+            var sourceData = inputRepository.GetData();
+            var targetData = outputRepository.GetData();
+            var targetTable = Helper.MappColumn(sourceData, targetData, ConvertDto.SourceData.MappingColumns);
+            var dataList = Helper.GetList<AccountCategories>(targetTable);
+            outputRepository.Export(dataList);
         }
 
         public void Execute()
         {
-            
+            CreateAccountCategory();
+            CreateGeneralLedgerAccount();
+            CreateSubsidiaryLedgerAccount();
+            CreateDetailAccounts();
+            CreateFiscalPeriod();
+            CreateJournal();
         }
 
         
